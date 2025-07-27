@@ -1,0 +1,12 @@
+# Rails specific files
+/log/*
+/tmp/*
+/config/master.key
+/config/credentials.yml.enc
+.env
+.env.local
+.env.*.local
+/node_modules
+/yarn-error.log
+yarn-debug.log*
+.yarn-integrity
