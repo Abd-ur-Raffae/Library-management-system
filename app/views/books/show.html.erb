@@ -1,0 +1,107 @@
+<div class="row">
+  <div class="col-md-8">
+    <div class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-book"></i> <%= @book.title %></h2>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-6">
+            <p><strong>Author:</strong> <%= link_to @book.author.name, @book.author, class: "text-decoration-none" %></p>
+            <p><strong>Genre:</strong> <%= @book.genre %></p>
+            <p><strong>Publication Year:</strong> <%= @book.publication_year %></p>
+            <p><strong>ISBN:</strong> <%= @book.isbn %></p>
+          </div>
+          <div class="col-md-6">
+            <p><strong>Status:</strong> 
+              <% if @book.available? %>
+                <span class="badge bg-success">Available</span>
+              <% else %>
+                <span class="badge bg-danger">Borrowed</span>
+              <% end %>
+            </p>
+          </div>
+        </div>
+        
+        <% if @book.description.present? %>
+          <div class="mt-3">
+            <strong>Description:</strong>
+            <p class="mt-2"><%= simple_format(@book.description) %></p>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+  
+  <% if user_signed_in? && current_user.librarian? %>
+  <div class="col-md-4">
+    <div class="card">
+      <div class="card-header">
+        <h5>Actions</h5>
+      </div>
+      <div class="card-body">
+        <%= link_to "Edit Book", edit_book_path(@book), class: "btn btn-warning btn-block mb-2 w-100" %>
+        <%= link_to "Delete Book", @book, data: { "turbo-method": :delete, "turbo-confirm": "Are you sure?" }, class: "btn btn-danger btn-block mb-2 w-100" %>
+        
+        <hr>
+        
+        <% if @book.available? %>
+          <h6>Borrow This Book</h6>
+          <%= form_with url: borrow_book_path(@book), method: :patch, local: true do |form| %>
+            <div class="mb-3">
+              <%= form.label :member_id, "Select Member", class: "form-label" %>
+              <%= form.select :member_id, 
+                              options_from_collection_for_select(Member.where(active: true), :id, :name), 
+                              { prompt: "Choose a member..." }, 
+                              { class: "form-select" } %>
+            </div>
+            <%= form.submit "Borrow Book", class: "btn btn-success w-100" %>
+          <% end %>
+        <% else %>
+          <%= link_to "Return Book", return_book_book_path(@book), 
+                      data: { "turbo-method": :patch, "turbo-confirm": "Mark this book as returned?" },
+                      class: "btn btn-info w-100" %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+<% end %>
+
+    
+    <!-- Borrowing History -->
+    <div class="card mt-3">
+      <div class="card-header">
+        <h6>Borrowing History</h6>
+      </div>
+      <div class="card-body">
+        <% if @borrowings.any? %>
+          <% @borrowings.order(borrowed_date: :desc).limit(5).each do |borrowing| %>
+            <div class="mb-2 p-2 border rounded">
+              <small>
+                <strong><%= borrowing.member.name %></strong>  
+
+                <%= borrowing.borrowed_date.strftime("%b %d, %Y") %> - 
+                <% if borrowing.returned_date %>
+                  <%= borrowing.returned_date.strftime("%b %d, %Y") %>
+                <% else %>
+                  <span class="text-muted">Not returned</span>
+                <% end %>
+                  
+
+                <span class="badge bg-<%= borrowing.status == 'returned' ? 'success' : borrowing.status == 'overdue' ? 'danger' : 'warning' %>">
+                  <%= borrowing.status.capitalize %>
+                </span>
+              </small>
+            </div>
+          <% end %>
+        <% else %>
+          <p class="text-muted">No borrowing history</p>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="mt-3">
+  <%= link_to "← Back to Books", books_path, class: "btn btn-secondary" %>
+</div>

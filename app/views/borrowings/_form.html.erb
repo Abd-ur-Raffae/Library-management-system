@@ -1,0 +1,57 @@
+<%= form_with(model: borrowing, local: true, class: "row g-3") do |form| %>
+  <% if borrowing.errors.any? %>
+    <div class="alert alert-danger">
+      <h4><%= pluralize(borrowing.errors.count, "error") %> prohibited this borrowing from being saved:</h4>
+      <ul class="mb-0">
+        <% borrowing.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="col-md-6">
+    <%= form.label :book_id, "Book", class: "form-label" %>
+    <%= form.select :book_id, 
+                    options_from_collection_for_select(@books, :id, :title, borrowing.book_id), 
+                    { prompt: "Select a book..." }, 
+                    { class: "form-select" } %>
+  </div>
+
+  <div class="col-md-6">
+    <%= form.label :member_id, "Member", class: "form-label" %>
+    <%= form.select :member_id, 
+                    options_from_collection_for_select(@members, :id, :name, borrowing.member_id), 
+                    { prompt: "Select a member..." }, 
+                    { class: "form-select" } %>
+  </div>
+
+  <div class="col-md-6">
+    <%= form.label :borrowed_date, class: "form-label" %>
+    <%= form.date_field :borrowed_date, class: "form-control", value: borrowing.borrowed_date || Date.current %>
+  </div>
+
+  <div class="col-md-6">
+    <%= form.label :due_date, class: "form-label" %>
+    <%= form.date_field :due_date, class: "form-control", value: borrowing.due_date || (Date.current + 14.days) %>
+  </div>
+
+  <div class="col-md-6">
+    <%= form.label :status, class: "form-label" %>
+    <%= form.select :status, 
+                    [["Borrowed", "borrowed"], ["Returned", "returned"], ["Overdue", "overdue"]], 
+                    { selected: borrowing.status || "borrowed" }, 
+                    { class: "form-select" } %>
+  </div>
+
+  <div class="col-md-6">
+    <%= form.label :returned_date, class: "form-label" %>
+    <%= form.date_field :returned_date, class: "form-control" %>
+    <div class="form-text">Leave empty if not returned yet</div>
+  </div>
+
+  <div class="col-12">
+    <%= form.submit class: "btn btn-primary" %>
+    <%= link_to "Cancel", borrowings_path, class: "btn btn-secondary" %>
+  </div>
+<% end %>

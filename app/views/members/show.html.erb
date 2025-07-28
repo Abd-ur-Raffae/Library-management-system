@@ -1,0 +1,123 @@
+<div class="row">
+  <div class="col-md-8">
+    <div class="card">
+      <div class="card-header">
+        <h2>
+          <i class="fas fa-user"></i> <%= @member.name %>
+          <% if @member.active? %>
+            <span class="badge bg-success ms-2">Active Member</span>
+          <% else %>
+            <span class="badge bg-secondary ms-2">Inactive</span>
+          <% end %>
+        </h2>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-6">
+            <p><strong>Email:</strong> <%= @member.email %></p>
+            <p><strong>Phone:</strong> <%= @member.phone %></p>
+            <p><strong>Membership Type:</strong> <%= @member.membership_type&.capitalize %></p>
+            <p><strong>Member Since:</strong> <%= @member.membership_date.strftime("%B %d, %Y") if @member.membership_date %></p>
+          </div>
+          <div class="col-md-6">
+            <% if @member.address.present? %>
+              <p><strong>Address:</strong>  
+<%= simple_format(@member.address) %></p>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Current Borrowings -->
+    <div class="card mt-4">
+      <div class="card-header">
+        <h5>Current Borrowings</h5>
+      </div>
+      <div class="card-body">
+        <% if @current_borrowings.any? %>
+          <% @current_borrowings.each do |borrowing| %>
+            <div class="card mb-3">
+              <div class="card-body">
+                <h6 class="card-title">
+                  <%= link_to borrowing.book.title, borrowing.book, class: "text-decoration-none" %>
+                </h6>
+                <p class="card-text">
+                  <strong>Author:</strong> <%= borrowing.book.author.name %>  
+
+                  <strong>Borrowed:</strong> <%= borrowing.borrowed_date.strftime("%B %d, %Y") %>  
+
+                  <strong>Due:</strong> <%= borrowing.due_date.strftime("%B %d, %Y") %>
+                  <% if borrowing.due_date < Date.current %>
+                    <span class="badge bg-danger ms-2">Overdue</span>
+                  <% end %>
+                </p>
+              </div>
+            </div>
+          <% end %>
+        <% else %>
+          <p class="text-muted">No current borrowings.</p>
+        <% end %>
+      </div>
+    </div>
+    
+    <!-- Borrowing History -->
+    <div class="card mt-4">
+      <div class="card-header">
+        <h5>Borrowing History</h5>
+      </div>
+      <div class="card-body">
+        <% if @borrowing_history.any? %>
+          <% @borrowing_history.order(borrowed_date: :desc).limit(10).each do |borrowing| %>
+            <div class="mb-2 p-2 border rounded">
+              <strong><%= borrowing.book.title %></strong>  
+
+              <small class="text-muted">
+                <%= borrowing.borrowed_date.strftime("%b %d, %Y") %> - 
+                <% if borrowing.returned_date %>
+                  <%= borrowing.returned_date.strftime("%b %d, %Y") %>
+                <% else %>
+                  <span class="text-muted">Not returned</span>
+                <% end %>
+                <span class="badge bg-<%= borrowing.status == 'returned' ? 'success' : borrowing.status == 'overdue' ? 'danger' : 'warning' %> ms-2">
+                  <%= borrowing.status.capitalize %>
+                </span>
+              </small>
+            </div>
+          <% end %>
+        <% else %>
+          <p class="text-muted">No borrowing history.</p>
+        <% end %>
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-md-4">
+    <div class="card">
+      <div class="card-header">
+        <h5>Actions</h5>
+      </div>
+      <div class="card-body">
+        <%= link_to "Edit Member", edit_member_path(@member), class: "btn btn-warning w-100 mb-2" %>
+        <%= link_to "Delete Member", @member, method: :delete, 
+                    confirm: "Are you sure?", 
+                    class: "btn btn-danger w-100" %>
+      </div>
+    </div>
+    
+    <div class="card mt-3">
+      <div class="card-header">
+        <h6>Statistics</h6>
+      </div>
+      <div class="card-body">
+        <p><strong>Total Books Borrowed:</strong> <%= @member.borrowings.count %></p>
+        <p><strong>Books Returned:</strong> <%= @member.borrowings.where(status: 'returned').count %></p>
+        <p><strong>Currently Borrowed:</strong> <%= @current_borrowings.count %></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="mt-3">
+  <%= link_to "← Back to Members", members_path, class: "btn btn-secondary" %>
+</div>

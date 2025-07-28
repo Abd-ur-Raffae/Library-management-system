@@ -1,0 +1,17 @@
+<div class="row justify-content-center">
+  <div class="col-md-8">
+    <div class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-edit"></i> Edit Book</h2>
+      </div>
+      <div class="card-body">
+        <%= render 'form', book: @book %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="mt-3">
+  <%= link_to "← Back to Book", @book, class: "btn btn-secondary" %>
+  <%= link_to "← Back to Books", books_path, class: "btn btn-secondary" %>
+</div>

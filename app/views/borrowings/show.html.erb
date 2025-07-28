@@ -1,0 +1,84 @@
+<div class="row">
+  <div class="col-md-8">
+    <div class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-exchange-alt"></i> Borrowing Details</h2>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-6">
+            <h5>Book Information</h5>
+            <p><strong>Title:</strong> <%= link_to @borrowing.book.title, @borrowing.book, class: "text-decoration-none" %></p>
+            <p><strong>Author:</strong> <%= @borrowing.book.author.name %></p>
+            <p><strong>ISBN:</strong> <%= @borrowing.book.isbn %></p>
+          </div>
+          <div class="col-md-6">
+            <h5>Member Information</h5>
+            <p><strong>Name:</strong> <%= link_to @borrowing.member.name, @borrowing.member, class: "text-decoration-none" %></p>
+            <p><strong>Email:</strong> <%= @borrowing.member.email %></p>
+            <p><strong>Phone:</strong> <%= @borrowing.member.phone %></p>
+          </div>
+        </div>
+        
+        <hr>
+        
+        <div class="row">
+          <div class="col-md-6">
+            <h5>Borrowing Information</h5>
+            <p><strong>Borrowed Date:</strong> <%= @borrowing.borrowed_date.strftime("%B %d, %Y") %></p>
+            <p><strong>Due Date:</strong> <%= @borrowing.due_date.strftime("%B %d, %Y") %></p>
+            <% if @borrowing.returned_date %>
+              <p><strong>Returned Date:</strong> <%= @borrowing.returned_date.strftime("%B %d, %Y") %></p>
+            <% end %>
+          </div>
+          <div class="col-md-6">
+            <p><strong>Status:</strong> 
+              <span class="badge bg-<%= @borrowing.status == 'returned' ? 'success' : @borrowing.status == 'overdue' ? 'danger' : 'warning' %> fs-6">
+                <%= @borrowing.status.capitalize %>
+              </span>
+            </p>
+            
+            <% if @borrowing.status == 'borrowed' && @borrowing.due_date < Date.current %>
+              <div class="alert alert-danger">
+                <i class="fas fa-exclamation-triangle"></i>
+                This book is overdue by <%= (Date.current - @borrowing.due_date).to_i %> days!
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-md-4">
+    <div class="card">
+      <div class="card-header">
+        <h5>Actions</h5>
+      </div>
+      <div class="card-body">
+        <% if @borrowing.status == 'borrowed' %>
+          <%= link_to "Mark as Returned", mark_returned_borrowing_path(@borrowing), 
+                      data: { "turbo-method": :patch }, 
+                      "turbo-confirm": "Mark this book as returned?",
+                      class: "btn btn-success w-100 mb-2" %>
+          
+          <% if @borrowing.due_date < Date.current %>
+            <%= link_to "Mark as Overdue", mark_overdue_borrowing_path(@borrowing), 
+                        data: { "turbo-method": :patch }, 
+                        "turbo-confirm": "Mark this borrowing as overdue?",
+                        class: "btn btn-danger w-100 mb-2" %>
+          <% end %>
+        <% end %>
+        
+        <%= link_to "Edit Borrowing", edit_borrowing_path(@borrowing), class: "btn btn-warning w-100 mb-2" %>
+        <%= link_to "Delete Borrowing", @borrowing, data: { "turbo-method": :delete }, 
+                    "turbo-confirm": "Are you sure?", 
+                    class: "btn btn-danger w-100" %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="mt-3">
+  <%= link_to "← Back to Borrowings", borrowings_path, class: "btn btn-secondary" %>
+</div>

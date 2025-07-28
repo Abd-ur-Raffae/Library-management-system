@@ -1,0 +1,61 @@
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h1><i class="fas fa-exclamation-triangle text-danger"></i> Overdue Books</h1>
+  <%= link_to "← Back to All Borrowings", borrowings_path, class: "btn btn-secondary" %>
+</div>
+
+<% if @overdue_borrowings.any? %>
+  <div class="alert alert-warning">
+    <i class="fas fa-exclamation-triangle"></i>
+    <strong>Warning:</strong> There are <%= pluralize(@overdue_borrowings.count, 'overdue book') %> that need attention.
+  </div>
+
+  <div class="table-responsive">
+    <table class="table table-striped">
+      <thead class="table-danger">
+        <tr>
+          <th>Book</th>
+          <th>Member</th>
+          <th>Due Date</th>
+          <th>Days Overdue</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @overdue_borrowings.each do |borrowing| %>
+          <tr>
+            <td>
+              <%= link_to borrowing.book.title, borrowing.book, class: "text-decoration-none" %>  
+
+              <small class="text-muted">by <%= borrowing.book.author.name %></small>
+            </td>
+            <td>
+              <%= link_to borrowing.member.name, borrowing.member, class: "text-decoration-none" %>  
+
+              <small class="text-muted"><%= borrowing.member.email %></small>
+            </td>
+            <td><%= borrowing.due_date.strftime("%b %d, %Y") %></td>
+            <td>
+              <span class="badge bg-danger">
+                <%= (Date.current - borrowing.due_date).to_i %> days
+              </span>
+            </td>
+            <td>
+              <%= link_to "View", borrowing, class: "btn btn-info btn-sm" %>
+              <%= link_to "Mark Returned", mark_returned_borrowing_path(borrowing), 
+                          data: { "turbo-method": :patch }, 
+                          "turbo-confirm": "Mark as returned?",
+                          class: "btn btn-success btn-sm" %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+<% else %>
+  <div class="text-center mt-5">
+    <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
+    <h3 class="text-success">No Overdue Books!</h3>
+    <p class="text-muted">All books are returned on time or still within the due date.</p>
+    <%= link_to "View All Borrowings", borrowings_path, class: "btn btn-primary" %>
+  </div>
+<% end %>

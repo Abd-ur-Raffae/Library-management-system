@@ -1,0 +1,81 @@
+<div class="row">
+  <div class="col-md-8">
+    <div class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-user-edit"></i> <%= @author.name %></h2>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-6">
+            <% if @author.nationality.present? %>
+              <p><strong>Nationality:</strong> <%= @author.nationality %></p>
+            <% end %>
+            <% if @author.birth_date.present? %>
+              <p><strong>Date of Birth:</strong> <%= @author.birth_date.strftime("%B %d, %Y") %></p>
+            <% end %>
+            <p><strong>Total Books:</strong> <%= pluralize(@books.count, 'book') %></p>
+          </div>
+        </div>
+        
+        <% if @author.biography.present? %>
+          <div class="mt-3">
+            <strong>Biography:</strong>
+            <p class="mt-2"><%= simple_format(@author.biography) %></p>
+          </div>
+        <% end %>
+      </div>
+    </div>
+    
+    <!-- Books by this author -->
+    <div class="card mt-4">
+      <div class="card-header">
+        <h5>Books by <%= @author.name %></h5>
+      </div>
+      <div class="card-body">
+        <% if @books.any? %>
+          <div class="row">
+            <% @books.each do |book| %>
+              <div class="col-md-6 mb-3">
+                <div class="card">
+                  <div class="card-body">
+                    <h6 class="card-title"><%= link_to book.title, book, class: "text-decoration-none" %></h6>
+                    <p class="card-text">
+                      <small class="text-muted">
+                        <%= book.genre %> • <%= book.publication_year %>
+                        <% if book.available? %>
+                          <span class="badge bg-success ms-2">Available</span>
+                        <% else %>
+                          <span class="badge bg-danger ms-2">Borrowed</span>
+                        <% end %>
+                      </small>
+                    </p>
+                  </div>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        <% else %>
+          <p class="text-muted">No books by this author yet.</p>
+        <% end %>
+      </div>
+    </div>
+  </div>
+  
+ <% if user_signed_in? && current_user.librarian? %>
+  <div class="col-md-4">
+    <div class="card">
+      <div class="card-header">
+        <h5>Actions</h5>
+      </div>
+      <div class="card-body">
+        <%= link_to "Edit Author", edit_author_path(@author), class: "btn btn-warning w-100 mb-2" %>
+        <%= link_to "Delete Author", @author, data: { "turbo-method": :delete, "turbo-confirm": "Are you sure?" }, class: "btn btn-danger w-100" %>
+      </div>
+    </div>
+  </div>
+<% end %>
+
+
+<div class="mt-3">
+  <%= link_to "← Back to Authors", authors_path, class: "btn btn-secondary" %>
+</div>

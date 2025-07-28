@@ -1,0 +1,173 @@
+<div class="row mb-4">
+  <div class="col-12">
+    <h1><i class="fas fa-tachometer-alt"></i> Library Dashboard</h1>
+  </div>
+</div>
+
+<div class="row mb-4">
+  <div class="col-md-3">
+    <div class="card bg-primary text-white">
+      <div class="card-body">
+        <div class="d-flex justify-content-between">
+          <div>
+            <h4><%= @total_books %></h4>
+            <p class="mb-0">Total Books</p>
+          </div>
+          <div class="align-self-center">
+            <i class="fas fa-book fa-2x"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-md-3">
+    <div class="card bg-success text-white">
+      <div class="card-body">
+        <div class="d-flex justify-content-between">
+          <div>
+            <h4><%= @available_books %></h4>
+            <p class="mb-0">Available Books</p>
+          </div>
+          <div class="align-self-center">
+            <i class="fas fa-check-circle fa-2x"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-md-3">
+    <div class="card bg-warning text-white">
+      <div class="card-body">
+        <div class="d-flex justify-content-between">
+          <div>
+            <h4><%= @borrowed_books %></h4>
+            <p class="mb-0">Borrowed Books</p>
+          </div>
+          <div class="align-self-center">
+            <i class="fas fa-exchange-alt fa-2x"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-md-3">
+    <div class="card bg-danger text-white">
+      <div class="card-body">
+        <div class="d-flex justify-content-between">
+          <div>
+            <h4><%= @overdue_borrowings %></h4>
+            <p class="mb-0">Overdue Books</p>
+          </div>
+          <div class="align-self-center">
+            <i class="fas fa-exclamation-triangle fa-2x"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-header">
+        <h5><i class="fas fa-clock"></i> Recent Borrowings</h5>
+      </div>
+      <div class="card-body">
+        <% recent_borrowings = Borrowing.includes(:book, :member).order(borrowed_date: :desc).limit(5) %>
+        <% if recent_borrowings.any? %>
+          <% recent_borrowings.each do |borrowing| %>
+            <div class="d-flex justify-content-between align-items-center mb-2 p-2 border rounded">
+              <div>
+                <strong><%= borrowing.book.title %></strong>  
+
+                <small class="text-muted">by <%= borrowing.member.name %></small>
+              </div>
+              <div class="text-end">
+                <small><%= borrowing.borrowed_date.strftime("%b %d") %></small>  
+
+                <span class="badge bg-<%= borrowing.status == 'returned' ? 'success' : borrowing.status == 'overdue' ? 'danger' : 'warning' %>">
+                  <%= borrowing.status.capitalize %>
+                </span>
+              </div>
+            </div>
+          <% end %>
+          <div class="text-center mt-3">
+            <%= link_to "View All Borrowings", borrowings_path, class: "btn btn-outline-primary btn-sm" %>
+          </div>
+        <% else %>
+          <p class="text-muted text-center">No recent borrowings</p>
+        <% end %>
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-header">
+        <h5><i class="fas fa-star"></i> Popular Books</h5>
+      </div>
+      <div class="card-body">
+        <% popular_books = Book.joins(:borrowings).group('books.id').order('COUNT(borrowings.id) DESC').limit(5) %>
+        <% if popular_books.any? %>
+          <% popular_books.each_with_index do |book, index| %>
+            <div class="d-flex justify-content-between align-items-center mb-2 p-2 border rounded">
+              <div>
+                <strong><%= link_to book.title, book, class: "text-decoration-none" %></strong>  
+
+                <small class="text-muted">by <%= book.author.name %></small>
+              </div>
+              <div class="text-end">
+                <span class="badge bg-primary">#<%= index + 1 %></span>  
+
+                <small><%= pluralize(book.borrowings.count, 'borrow') %></small>
+              </div>
+            </div>
+          <% end %>
+          <div class="text-center mt-3">
+            <%= link_to "View All Books", books_path, class: "btn btn-outline-primary btn-sm" %>
+          </div>
+        <% else %>
+          <p class="text-muted text-center">No borrowing data yet</p>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row mt-4">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-header">
+        <h5><i class="fas fa-chart-bar"></i> Quick Actions</h5>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-3 mb-2">
+            <%= link_to new_book_path, class: "btn btn-primary w-100" do %>
+              <i class="fas fa-plus"></i> Add New Book
+            <% end %>
+          </div>
+          <div class="col-md-3 mb-2">
+            <%= link_to new_member_path, class: "btn btn-success w-100" do %>
+              <i class="fas fa-user-plus"></i> Register Member
+            <% end %>
+          </div>
+          <div class="col-md-3 mb-2">
+            <%= link_to new_borrowing_path, class: "btn btn-warning w-100" do %>
+              <i class="fas fa-exchange-alt"></i> New Borrowing
+            <% end %>
+          </div>
+          <div class="col-md-3 mb-2">
+            <%= link_to library_overdue_path, class: "btn btn-danger w-100" do %>
+              <i class="fas fa-exclamation-triangle"></i> View Overdue
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

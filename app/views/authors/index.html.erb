@@ -1,0 +1,51 @@
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h1><i class="fas fa-user-edit"></i> Authors</h1>
+  <% if user_signed_in? && current_user.librarian? %>
+    <%= link_to "Add New Author", new_author_path, class: "btn btn-primary" %>
+  <% end %>
+</div>
+
+<div class="row">
+  <% @authors.each do |author| %>
+    <div class="col-md-6 mb-4">
+      <div class="card h-100">
+        <div class="card-body">
+          <h5 class="card-title"><%= author.name %></h5>
+          <p class="card-text">
+            <% if author.nationality.present? %>
+              <strong>Nationality:</strong> <%= author.nationality %>  
+
+            <% end %>
+            <% if author.birth_date.present? %>
+              <strong>Born:</strong> <%= author.birth_date.strftime("%B %d, %Y") %>  
+
+            <% end %>
+            <strong>Books:</strong> <%= pluralize(author.books.count, 'book') %>
+          </p>
+          
+          <% if author.biography.present? %>
+            <p class="card-text"><%= truncate(author.biography, length: 150) %></p>
+          <% end %>
+        </div>
+        
+        <div class="card-footer">
+        <%= link_to "View", author, class: "btn btn-info btn-sm" %>
+        <% if user_signed_in? && current_user.librarian? %>
+          <%= link_to "Edit", edit_author_path(author), class: "btn btn-warning btn-sm" %>
+          <%= link_to "Delete", author, data: { "turbo-method": :delete, "turbo-confirm": "Are you sure?" }, class: "btn btn-danger btn-sm" %>
+        <% end %>
+        </div>
+
+      </div>
+    </div>
+  <% end %>
+</div>
+
+<% if @authors.empty? %>
+  <div class="text-center mt-5">
+    <i class="fas fa-user-edit fa-3x text-muted mb-3"></i>
+    <h3 class="text-muted">No authors found</h3>
+    <p class="text-muted">Start by adding your first author.</p>
+    <%= link_to "Add First Author", new_author_path, class: "btn btn-primary" %>
+  </div>
+<% end %>

@@ -1,0 +1,53 @@
+<%= form_with(model: book, local: true, class: "row g-3") do |form| %>
+  <% if book.errors.any? %>
+    <div class="alert alert-danger">
+      <h4><%= pluralize(book.errors.count, "error") %> prohibited this book from being saved:</h4>
+      <ul class="mb-0">
+        <% book.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="col-md-6">
+    <%= form.label :title, class: "form-label" %>
+    <%= form.text_field :title, class: "form-control" %>
+  </div>
+
+  <div class="col-md-6">
+    <%= form.label :author_id, "Author", class: "form-label" %>
+    <%= form.select :author_id, 
+                    options_from_collection_for_select(@authors, :id, :name, book.author_id), 
+                    { prompt: "Select an author..." }, 
+                    { class: "form-select" } %>
+  </div>
+
+  <div class="col-md-6">
+    <%= form.label :isbn, class: "form-label" %>
+    <%= form.text_field :isbn, class: "form-control" %>
+  </div>
+
+  <div class="col-md-6">
+    <%= form.label :publication_year, class: "form-label" %>
+    <%= form.number_field :publication_year, class: "form-control" %>
+  </div>
+
+  <div class="col-md-6">
+    <%= form.label :genre, class: "form-label" %>
+    <%= form.select :genre, 
+                    ["Fiction", "Non-Fiction", "Science Fiction", "Mystery", "Romance", "Biography", "History", "Science", "Technology", "Other"], 
+                    { prompt: "Select a genre..." }, 
+                    { class: "form-select" } %>
+  </div>
+
+  <div class="col-12">
+    <%= form.label :description, class: "form-label" %>
+    <%= form.text_area :description, rows: 4, class: "form-control" %>
+  </div>
+
+  <div class="col-12">
+    <%= form.submit class: "btn btn-primary" %>
+    <%= link_to "Cancel", books_path, class: "btn btn-secondary" %>
+  </div>
+<% end %>

@@ -1,0 +1,81 @@
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h1><i class="fas fa-exchange-alt"></i> Borrowings</h1>
+  <%= link_to "New Borrowing", new_borrowing_path, class: "btn btn-primary" %>
+</div>
+
+<div class="row mb-3">
+  <div class="col-md-12">
+    <div class="btn-group" role="group">
+      <%= link_to "All Borrowings", borrowings_path, class: "btn btn-outline-primary" %>
+      <%= link_to "Overdue Books", library_overdue_path, class: "btn btn-outline-danger" %>
+    </div>
+  </div>
+</div>
+
+<div class="table-responsive">
+  <table class="table table-striped">
+    <thead class="table-dark">
+      <tr>
+        <th>Book</th>
+        <th>Member</th>
+        <th>Borrowed Date</th>
+        <th>Due Date</th>
+        <th>Returned Date</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @borrowings.each do |borrowing| %>
+        <tr>
+          <td>
+            <%= link_to borrowing.book.title, borrowing.book, class: "text-decoration-none" %>  
+
+            <small class="text-muted">by <%= borrowing.book.author.name %></small>
+          </td>
+          <td>
+            <%= link_to borrowing.member.name, borrowing.member, class: "text-decoration-none" %>  
+
+            <small class="text-muted"><%= borrowing.member.email %></small>
+          </td>
+          <td><%= borrowing.borrowed_date.strftime("%b %d, %Y") %></td>
+          <td>
+            <%= borrowing.due_date.strftime("%b %d, %Y") %>
+            <% if borrowing.due_date < Date.current && borrowing.status == 'borrowed' %>
+                
+<small class="text-danger">Overdue!</small>
+            <% end %>
+          </td>
+          <td>
+            <% if borrowing.returned_date %>
+              <%= borrowing.returned_date.strftime("%b %d, %Y") %>
+            <% else %>
+              <span class="text-muted">-</span>
+            <% end %>
+          </td>
+          <td>
+            <span class="badge bg-<%= borrowing.status == 'returned' ? 'success' : borrowing.status == 'overdue' ? 'danger' : 'warning' %>">
+              <%= borrowing.status.capitalize %>
+            </span>
+          </td>
+          <td>
+            <%= link_to "View", borrowing, class: "btn btn-info btn-sm" %>
+            <% if borrowing.status == 'borrowed' %>
+              <%= link_to "Return", mark_returned_borrowing_path(borrowing), data: { "turbo-method": :patch, "turbo-confirm": "Mark as returned?" }, class: "btn btn-success btn-sm" %>
+            <% end %>
+            <%= link_to "Edit", edit_borrowing_path(borrowing), class: "btn btn-warning btn-sm" %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
+
+<% if @borrowings.empty? %>
+  <div class="text-center mt-5">
+    <i class="fas fa-exchange-alt fa-3x text-muted mb-3"></i>
+    <h3 class="text-muted">No borrowings found</h3>
+    <p class="text-muted">Start by creating your first book borrowing.</p>
+    <%= link_to "New Borrowing", new_borrowing_path, class: "btn btn-primary" %>
+  </div>
+<% end %>

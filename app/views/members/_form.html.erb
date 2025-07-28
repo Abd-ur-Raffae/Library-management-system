@@ -1,0 +1,52 @@
+<%= form_with(model: member, local: true, class: "row g-3") do |form| %>
+  <% if member.errors.any? %>
+    <div class="alert alert-danger">
+      <h4><%= pluralize(member.errors.count, "error") %> prohibited this member from being saved:</h4>
+      <ul class="mb-0">
+        <% member.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="col-md-6">
+    <%= form.label :name, class: "form-label" %>
+    <%= form.text_field :name, class: "form-control" %>
+  </div>
+
+  <div class="col-md-6">
+    <%= form.label :email, class: "form-label" %>
+    <%= form.email_field :email, class: "form-control" %>
+  </div>
+
+  <div class="col-md-6">
+    <%= form.label :phone, class: "form-label" %>
+    <%= form.text_field :phone, class: "form-control" %>
+  </div>
+
+  <div class="col-md-6">
+    <%= form.label :membership_type, class: "form-label" %>
+    <%= form.select :membership_type, 
+                    ["student", "adult", "senior", "faculty", "staff"], 
+                    { prompt: "Select membership type..." }, 
+                    { class: "form-select" } %>
+  </div>
+
+  <div class="col-12">
+    <%= form.label :address, class: "form-label" %>
+    <%= form.text_area :address, rows: 3, class: "form-control", placeholder: "Full address..." %>
+  </div>
+
+  <div class="col-md-6">
+    <div class="form-check">
+      <%= form.check_box :active, class: "form-check-input" %>
+      <%= form.label :active, "Active Member", class: "form-check-label" %>
+    </div>
+  </div>
+
+  <div class="col-12">
+    <%= form.submit class: "btn btn-primary" %>
+    <%= link_to "Cancel", members_path, class: "btn btn-secondary" %>
+  </div>
+<% end %>

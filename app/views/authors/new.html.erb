@@ -1,0 +1,16 @@
+<div class="row justify-content-center">
+  <div class="col-md-8">
+    <div class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-plus"></i> Add New Author</h2>
+      </div>
+      <div class="card-body">
+        <%= render 'form', author: @author %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="mt-3">
+  <%= link_to "← Back to Authors", authors_path, class: "btn btn-secondary" %>
+</div>
