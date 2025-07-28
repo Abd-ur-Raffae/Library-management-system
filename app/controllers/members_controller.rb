@@ -1,14 +1,14 @@
 class MembersController < ApplicationController
   before_action :require_librarian
-  before_action :set_member, only: [:show, :edit, :update, :destroy]
+  before_action :set_member, only: [ :show, :edit, :update, :destroy ]
 
   def index
     @members = Member.all
   end
 
   def show
-    @current_borrowings = @member.borrowings.where(status: 'borrowed').includes(:book)
-    @borrowing_history = @member.borrowings.where(status: ['returned', 'overdue']).includes(:book)
+    @current_borrowings = @member.borrowings.where(status: "borrowed").includes(:book)
+    @borrowing_history = @member.borrowings.where(status: [ "returned", "overdue" ]).includes(:book)
   end
 
   def new
@@ -19,9 +19,9 @@ class MembersController < ApplicationController
     @member = Member.new(member_params)
     @member.membership_date = Date.current
     @member.active = true
-    
+
     if @member.save
-      redirect_to @member, notice: 'Member was successfully created.'
+      redirect_to @member, notice: "Member was successfully created."
     else
       render :new
     end
@@ -32,18 +32,18 @@ class MembersController < ApplicationController
 
   def update
     if @member.update(member_params)
-      redirect_to @member, notice: 'Member was successfully updated.'
+      redirect_to @member, notice: "Member was successfully updated."
     else
       render :edit
     end
   end
 
   def destroy
-    if @member.borrowings.where(status: 'borrowed').any?
-      redirect_to members_url, alert: 'Cannot delete member with active borrowings.'
+    if @member.borrowings.where(status: "borrowed").any?
+      redirect_to members_url, alert: "Cannot delete member with active borrowings."
     else
       @member.destroy
-      redirect_to members_url, notice: 'Member was successfully deleted.'
+      redirect_to members_url, notice: "Member was successfully deleted."
     end
   end
 

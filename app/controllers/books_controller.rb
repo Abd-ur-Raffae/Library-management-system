@@ -1,6 +1,6 @@
 class BooksController < ApplicationController
-  before_action :require_librarian, except: [:index, :show, :dashboard, :search]
-  before_action :set_book, only: [:show, :edit, :update, :destroy, :borrow, :return_book]
+  before_action :require_librarian, except: [ :index, :show, :dashboard, :search ]
+  before_action :set_book, only: [ :show, :edit, :update, :destroy, :borrow, :return_book ]
 
   def index
     @books = Book.includes(:author).all
@@ -18,9 +18,9 @@ class BooksController < ApplicationController
   def create
     @book = Book.new(book_params)
     @book.available = true
-    
+
     if @book.save
-      redirect_to @book, notice: 'Book was successfully created.'
+      redirect_to @book, notice: "Book was successfully created."
     else
       @authors = Author.all
       render :new
@@ -33,7 +33,7 @@ class BooksController < ApplicationController
 
   def update
     if @book.update(book_params)
-      redirect_to @book, notice: 'Book was successfully updated.'
+      redirect_to @book, notice: "Book was successfully updated."
     else
       @authors = Author.all
       render :edit
@@ -42,14 +42,14 @@ class BooksController < ApplicationController
 
   def destroy
     @book.destroy
-    redirect_to books_url, notice: 'Book was successfully deleted.'
+    redirect_to books_url, notice: "Book was successfully deleted."
   end
 
   def dashboard
     @total_books = Book.count
     @available_books = Book.where(available: true).count
     @borrowed_books = Book.where(available: false).count
-    @overdue_borrowings = Borrowing.where(status: 'overdue').count
+    @overdue_borrowings = Borrowing.where(status: "overdue").count
   end
 
   def search
@@ -64,34 +64,34 @@ class BooksController < ApplicationController
   end
     def borrow
     @members = Member.where(active: true)
-    
+
     if request.post?
       member = Member.find(params[:member_id])
       borrowing = @book.borrowings.build(
         member: member,
         borrowed_date: Date.current,
         due_date: Date.current + 14.days,
-        status: 'borrowed'
+        status: "borrowed"
       )
-      
+
       if borrowing.save
         @book.update(available: false)
-        redirect_to @book, notice: 'Book was successfully borrowed.'
+        redirect_to @book, notice: "Book was successfully borrowed."
       else
-        redirect_to @book, alert: 'Error borrowing book.'
+        redirect_to @book, alert: "Error borrowing book."
       end
     end
   end
 
   def return_book
-    active_borrowing = @book.borrowings.find_by(status: 'borrowed')
-    
+    active_borrowing = @book.borrowings.find_by(status: "borrowed")
+
     if active_borrowing
-      active_borrowing.update(status: 'returned', returned_date: Date.current)
+      active_borrowing.update(status: "returned", returned_date: Date.current)
       @book.update(available: true)
-      redirect_to @book, notice: 'Book was successfully returned.'
+      redirect_to @book, notice: "Book was successfully returned."
     else
-      redirect_to @book, alert: 'No active borrowing found for this book.'
+      redirect_to @book, alert: "No active borrowing found for this book."
     end
   end
 

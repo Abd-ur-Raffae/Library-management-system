@@ -1,6 +1,6 @@
 class AuthorsController < ApplicationController
-  before_action :require_librarian, except: [:index, :show]
-  before_action :set_author, only: [:show, :edit, :update, :destroy]
+  before_action :require_librarian, except: [ :index, :show ]
+  before_action :set_author, only: [ :show, :edit, :update, :destroy ]
 
   def index
     @authors = Author.all
@@ -16,9 +16,9 @@ class AuthorsController < ApplicationController
 
   def create
     @author = Author.new(author_params)
-    
+
     if @author.save
-      redirect_to @author, notice: 'Author was successfully created.'
+      redirect_to @author, notice: "Author was successfully created."
     else
       render :new
     end
@@ -29,7 +29,7 @@ class AuthorsController < ApplicationController
 
   def update
     if @author.update(author_params)
-      redirect_to @author, notice: 'Author was successfully updated.'
+      redirect_to @author, notice: "Author was successfully updated."
     else
       render :edit
     end
@@ -37,10 +37,10 @@ class AuthorsController < ApplicationController
 
   def destroy
     if @author.books.any?
-      redirect_to authors_url, alert: 'Cannot delete author with existing books.'
+      redirect_to authors_url, alert: "Cannot delete author with existing books."
     else
       @author.destroy
-      redirect_to authors_url, notice: 'Author was successfully deleted.'
+      redirect_to authors_url, notice: "Author was successfully deleted."
     end
   end
 

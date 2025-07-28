@@ -5,20 +5,20 @@ class User < ApplicationRecord
          :recoverable, :rememberable, :validatable
 
   validates :role, presence: true, inclusion: { in: %w[librarian member] }
-  
+
   before_validation :set_default_role, on: :create
-  
+
   def librarian?
-    role == 'librarian'
+    role == "librarian"
   end
-  
+
   def member?
-    role == 'member'
+    role == "member"
   end
-  
+
   private
-  
+
   def set_default_role
-    self.role ||= 'member'
+    self.role ||= "member"
   end
 end
