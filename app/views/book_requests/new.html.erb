@@ -1,0 +1,55 @@
+<div class="row justify-content-center">
+  <div class="col-md-8">
+    <div class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-hand-paper"></i> Request Book</h2>
+        <% if @book %>
+          <p class="mb-0 text-muted">Requesting: <strong><%= @book.title %></strong> by <%= @book.author.name %></p>
+        <% end %>
+      </div>
+      <div class="card-body">
+        <%= form_with(model: @book_request, local: true, class: "row g-3") do |form| %>
+          <% if @book_request.errors.any? %>
+            <div class="alert alert-danger">
+              <h4><%= pluralize(@book_request.errors.count, "error") %> prohibited this request from being saved:</h4>
+              <ul class="mb-0">
+                <% @book_request.errors.full_messages.each do |message| %>
+                  <li><%= message %></li>
+                <% end %>
+              </ul>
+            </div>
+          <% end %>
+
+          <div class="col-12">
+            <%= form.label :book_id, "Book", class: "form-label" %>
+            <% if @book %>
+              <%= form.hidden_field :book_id, value: @book.id %>
+              <input type="text" class="form-control" value="<%= @book.title %> by <%= @book.author.name %>" readonly>
+            <% else %>
+              <%= form.select :book_id, 
+                              options_from_collection_for_select(@books, :id, ->(book) { "#{book.title} by #{book.author.name}" }), 
+                              { prompt: "Select a book..." }, 
+                              { class: "form-select" } %>
+            <% end %>
+          </div>
+
+          <div class="col-md-6">
+            <%= form.label :needed_by_date, "When do you need it by?", class: "form-label" %>
+            <%= form.date_field :needed_by_date, class: "form-control", min: Date.tomorrow %>
+          </div>
+
+          <div class="col-12">
+            <%= form.label :reason, "Why do you need this book?", class: "form-label" %>
+            <%= form.text_area :reason, rows: 4, class: "form-control", 
+                               placeholder: "Please provide a brief reason for your request (minimum 10 characters)..." %>
+          </div>
+
+          <div class="col-12">
+            <%= form.submit "Submit Request", class: "btn btn-primary" %>
+            <%= link_to "Cancel", @book || books_path, class: "btn btn-secondary" %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>

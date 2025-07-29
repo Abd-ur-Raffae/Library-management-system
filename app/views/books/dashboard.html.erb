@@ -70,6 +70,45 @@
   </div>
 </div>
 
+<!-- Request Statistics -->
+<% if user_signed_in? %>
+  <div class="row mb-4">
+    <div class="col-md-3">
+      <div class="card bg-info text-white">
+        <div class="card-body">
+          <div class="d-flex justify-content-between">
+            <div>
+              <h4><%= BookRequest.pending.count %></h4>
+              <p class="mb-0">Pending Requests</p>
+            </div>
+            <div class="align-self-center">
+              <i class="fas fa-clock fa-2x"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <% if current_user.member? %>
+      <div class="col-md-3">
+        <div class="card bg-secondary text-white">
+          <div class="card-body">
+            <div class="d-flex justify-content-between">
+              <div>
+                <h4><%= current_user.pending_requests_count %></h4>
+                <p class="mb-0">My Pending</p>
+              </div>
+              <div class="align-self-center">
+                <i class="fas fa-user-clock fa-2x"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+<% end %>
+
 <div class="row">
   <div class="col-md-6">
     <div class="card">
@@ -84,7 +123,13 @@
               <div>
                 <strong><%= borrowing.book.title %></strong>  
 
-                <small class="text-muted">by <%= borrowing.member.name %></small>
+                <small class="text-muted">
+                  <% if borrowing.member %>
+                    by <%= borrowing.member.name %>
+                  <% else %>
+                    via Book Request
+                  <% end %>
+                </small>
               </div>
               <div class="text-end">
                 <small><%= borrowing.borrowed_date.strftime("%b %d") %></small>  
@@ -146,26 +191,50 @@
       </div>
       <div class="card-body">
         <div class="row">
-          <div class="col-md-3 mb-2">
-            <%= link_to new_book_path, class: "btn btn-primary w-100" do %>
-              <i class="fas fa-plus"></i> Add New Book
-            <% end %>
-          </div>
-          <div class="col-md-3 mb-2">
-            <%= link_to new_member_path, class: "btn btn-success w-100" do %>
-              <i class="fas fa-user-plus"></i> Register Member
-            <% end %>
-          </div>
-          <div class="col-md-3 mb-2">
-            <%= link_to new_borrowing_path, class: "btn btn-warning w-100" do %>
-              <i class="fas fa-exchange-alt"></i> New Borrowing
-            <% end %>
-          </div>
-          <div class="col-md-3 mb-2">
-            <%= link_to library_overdue_path, class: "btn btn-danger w-100" do %>
-              <i class="fas fa-exclamation-triangle"></i> View Overdue
-            <% end %>
-          </div>
+          <% if current_user&.librarian? %>
+            <div class="col-md-3 mb-2">
+              <%= link_to new_book_path, class: "btn btn-primary w-100" do %>
+                <i class="fas fa-plus"></i> Add New Book
+              <% end %>
+            </div>
+            <div class="col-md-3 mb-2">
+              <%= link_to new_member_path, class: "btn btn-success w-100" do %>
+                <i class="fas fa-user-plus"></i> Register Member
+              <% end %>
+            </div>
+            <div class="col-md-3 mb-2">
+              <%= link_to book_requests_path, class: "btn btn-info w-100" do %>
+                <i class="fas fa-tasks"></i> Manage Requests
+                <% if BookRequest.pending.count > 0 %>
+                  <span class="badge bg-warning text-dark"><%= BookRequest.pending.count %></span>
+                <% end %>
+              <% end %>
+            </div>
+            <div class="col-md-3 mb-2">
+              <%= link_to library_overdue_path, class: "btn btn-danger w-100" do %>
+                <i class="fas fa-exclamation-triangle"></i> View Overdue
+              <% end %>
+            </div>
+          <% elsif current_user&.member? %>
+            <div class="col-md-4 mb-2">
+              <%= link_to new_book_request_path, class: "btn btn-primary w-100" do %>
+                <i class="fas fa-hand-paper"></i> Request Book
+              <% end %>
+            </div>
+            <div class="col-md-4 mb-2">
+              <%= link_to my_requests_path, class: "btn btn-info w-100" do %>
+                <i class="fas fa-user-clock"></i> My Requests
+                <% if current_user.pending_requests_count > 0 %>
+                  <span class="badge bg-warning text-dark"><%= current_user.pending_requests_count %></span>
+                <% end %>
+              <% end %>
+            </div>
+            <div class="col-md-4 mb-2">
+              <%= link_to books_path, class: "btn btn-success w-100" do %>
+                <i class="fas fa-search"></i> Browse Books
+              <% end %>
+            </div>
+          <% end %>
         </div>
       </div>
     </div>

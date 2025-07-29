@@ -1,0 +1,108 @@
+<div class="row">
+  <div class="col-md-8">
+    <div class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-eye"></i> Book Request Details</h2>
+        <span class="badge bg-<%= @book_request.status == 'pending' ? 'warning' : @book_request.approved? ? 'success' : 'danger' %> fs-6">
+          <%= @book_request.status.capitalize %>
+        </span>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-6">
+            <h5>Book Information</h5>
+            <p><strong>Title:</strong> <%= link_to @book_request.book.title, @book_request.book, class: "text-decoration-none" %></p>
+            <p><strong>Author:</strong> <%= @book_request.book.author.name %></p>
+            <p><strong>ISBN:</strong> <%= @book_request.book.isbn %></p>
+            <p><strong>Available:</strong> 
+              <% if @book_request.book.available? %>
+                <span class="badge bg-success">Yes</span>
+              <% else %>
+                <span class="badge bg-danger">No</span>
+              <% end %>
+            </p>
+          </div>
+          <div class="col-md-6">
+            <h5>Request Information</h5>
+            <p><strong>Requested By:</strong> <%= @book_request.requested_by.email %></p>
+            <p><strong>Requested Date:</strong> <%= @book_request.requested_date.strftime("%B %d, %Y") %></p>
+            <p><strong>Needed By:</strong> <%= @book_request.needed_by_date.strftime("%B %d, %Y") %></p>
+            <% if @book_request.needed_by_date < Date.current + 3.days %>
+              <span class="badge bg-warning">Urgent Request</span>
+            <% end %>
+          </div>
+        </div>
+        
+        <hr>
+        
+        <div class="row">
+          <div class="col-12">
+            <h5>Reason for Request</h5>
+            <p class="bg-light p-3 rounded"><%= simple_format(@book_request.reason) %></p>
+          </div>
+        </div>
+        
+        <% unless @book_request.pending? %>
+          <hr>
+          <div class="row">
+            <div class="col-md-6">
+              <h5>Processing Information</h5>
+              <p><strong>Processed By:</strong> <%= @book_request.approved_by&.email %></p>
+              <p><strong>Processed Date:</strong> <%= @book_request.approved_date&.strftime("%B %d, %Y") %></p>
+              <% if @book_request.rejected? && @book_request.rejection_reason.present? %>
+                <p><strong>Rejection Reason:</strong></p>
+                <p class="bg-danger-subtle p-3 rounded"><%= simple_format(@book_request.rejection_reason) %></p>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-md-4">
+    <div class="card">
+      <div class="card-header">
+        <h5>Actions</h5>
+      </div>
+            <div class="card-body">
+        <% if current_user.librarian? %>
+            <% if @book_request.pending? %>
+            <% if @book_request.can_be_approved? %>
+                <%= form_with url: approve_book_request_path(@book_request), method: :patch, local: true do |form| %>
+                <%= form.submit "Approve Request", class: "btn btn-success w-100 mb-2", 
+                                data: { "turbo-confirm": "Approve this request and create borrowing?" } %>
+                <% end %>
+            <% else %>
+                <div class="alert alert-warning">
+                <small>Cannot approve - book is no longer available</small>
+                </div>
+            <% end %>
+            
+            <%= form_with url: reject_book_request_path(@book_request), method: :patch, local: true do |form| %>
+                <%= form.submit "Reject Request", class: "btn btn-danger w-100 mb-2", 
+                                data: { "turbo-confirm": "Reject this request?" } %>
+            <% end %>
+            <% end %>
+        <% else %>
+            <% if @book_request.pending? && @book_request.requested_by == current_user %>
+            <%= link_to "Edit Request", edit_book_request_path(@book_request), class: "btn btn-warning w-100 mb-2" %>
+            <%= form_with model: @book_request, method: :delete, local: true do |form| %>
+                <%= form.submit "Cancel Request", class: "btn btn-danger w-100 mb-2", 
+                                data: { "turbo-confirm": "Cancel this request?" } %>
+            <% end %>
+            <% end %>
+        <% end %>
+        </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="mt-3">
+  <% if current_user.librarian? %>
+    <%= link_to "← Back to All Requests", book_requests_path, class: "btn btn-secondary" %>
+  <% else %>
+    <%= link_to "← Back to My Requests", my_requests_path, class: "btn btn-secondary" %>
+  <% end %>
+</div>

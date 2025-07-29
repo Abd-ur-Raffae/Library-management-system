@@ -33,39 +33,81 @@
     </div>
   </div>
   
-  <% if user_signed_in? && current_user.librarian? %>
+ <% if user_signed_in? %>
   <div class="col-md-4">
     <div class="card">
       <div class="card-header">
         <h5>Actions</h5>
       </div>
       <div class="card-body">
-        <%= link_to "Edit Book", edit_book_path(@book), class: "btn btn-warning btn-block mb-2 w-100" %>
-        <%= link_to "Delete Book", @book, data: { "turbo-method": :delete, "turbo-confirm": "Are you sure?" }, class: "btn btn-danger btn-block mb-2 w-100" %>
-        
-        <hr>
-        
-        <% if @book.available? %>
-          <h6>Borrow This Book</h6>
-          <%= form_with url: borrow_book_path(@book), method: :patch, local: true do |form| %>
-            <div class="mb-3">
-              <%= form.label :member_id, "Select Member", class: "form-label" %>
-              <%= form.select :member_id, 
-                              options_from_collection_for_select(Member.where(active: true), :id, :name), 
-                              { prompt: "Choose a member..." }, 
-                              { class: "form-select" } %>
-            </div>
-            <%= form.submit "Borrow Book", class: "btn btn-success w-100" %>
+        <% if current_user.librarian? %>
+          <%= link_to "Edit Book", edit_book_path(@book), class: "btn btn-warning btn-block mb-2 w-100" %>
+          <%= link_to "Delete Book", @book, data: { "turbo-method": :delete, "turbo-confirm": "Are you sure?" }, class: "btn btn-danger btn-block mb-2 w-100" %>
+          
+          <hr>
+          
+          <% if @book.available? %>
+            <h6>Direct Borrow (Librarian)</h6>
+            <%= form_with url: borrow_book_path(@book), method: :patch, local: true do |form| %>
+              <div class="mb-3">
+                <%= form.label :member_id, "Select Member", class: "form-label" %>
+                <%= form.select :member_id, 
+                                options_from_collection_for_select(Member.where(active: true), :id, :name), 
+                                { prompt: "Choose a member..." }, 
+                                { class: "form-select" } %>
+              </div>
+              <%= form.submit "Borrow Book", class: "btn btn-success w-100" %>
+            <% end %>
+          <% else %>
+            <%= link_to "Return Book", return_book_book_path(@book), 
+                        data: { "turbo-method": :patch, "turbo-confirm": "Mark this book as returned?" },
+                        class: "btn btn-info w-100" %>
           <% end %>
-        <% else %>
-          <%= link_to "Return Book", return_book_book_path(@book), 
-                      data: { "turbo-method": :patch, "turbo-confirm": "Mark this book as returned?" },
-                      class: "btn btn-info w-100" %>
+          
+          <% if @book.pending_requests_count > 0 %>
+            <hr>
+            <div class="alert alert-info">
+              <small><i class="fas fa-info-circle"></i> This book has <%= pluralize(@book.pending_requests_count, 'pending request') %></small>
+            </div>
+          <% end %>
+          
+        <% elsif current_user.member? %>
+          <% if @book.available? %>
+            <% existing_request = current_user.book_requests.pending.for_book(@book).first %>
+            <% if existing_request %>
+              <div class="alert alert-warning">
+                <i class="fas fa-clock"></i> You have a pending request for this book.
+                  
+<%= link_to "View Request", existing_request, class: "btn btn-sm btn-outline-warning mt-2" %>
+              </div>
+            <% else %>
+              <%= link_to "Request This Book", new_book_book_request_path(@book), class: "btn btn-primary w-100 mb-2" %>
+            <% end %>
+          <% else %>
+            <div class="alert alert-secondary">
+              <i class="fas fa-info-circle"></i> This book is currently borrowed.
+              <% if @book.pending_requests_count > 0 %>
+                  
+<small>There are <%= pluralize(@book.pending_requests_count, 'pending request') %> ahead of you.</small>
+              <% end %>
+            </div>
+            <% existing_request = current_user.book_requests.pending.for_book(@book).first %>
+            <% if existing_request %>
+              <div class="alert alert-warning">
+                <i class="fas fa-clock"></i> You have a pending request for this book.
+                  
+<%= link_to "View Request", existing_request, class: "btn btn-sm btn-outline-warning mt-2" %>
+              </div>
+            <% else %>
+              <%= link_to "Request When Available", new_book_book_request_path(@book), class: "btn btn-outline-primary w-100" %>
+            <% end %>
+          <% end %>
         <% end %>
       </div>
     </div>
   </div>
 <% end %>
+
 
     
     <!-- Borrowing History -->

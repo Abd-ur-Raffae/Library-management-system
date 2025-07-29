@@ -34,9 +34,16 @@
             <small class="text-muted">by <%= borrowing.book.author.name %></small>
           </td>
           <td>
-            <%= link_to borrowing.member.name, borrowing.member, class: "text-decoration-none" %>  
+            <% if borrowing.member %>
+              <%= link_to borrowing.member.name, borrowing.member, class: "text-decoration-none" %>  
 
-            <small class="text-muted"><%= borrowing.member.email %></small>
+              <small class="text-muted"><%= borrowing.member.email %></small>
+            <% else %>
+              <span class="text-muted">Via Book Request</span>  
+
+              <small class="text-muted">No member record</small>
+            <% end %>
+
           </td>
           <td><%= borrowing.borrowed_date.strftime("%b %d, %Y") %></td>
           <td>

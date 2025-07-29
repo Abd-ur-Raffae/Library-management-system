@@ -1,0 +1,25 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  book: one
+  member: one
+  requested_by: one
+  requested_date: 2025-07-28
+  needed_by_date: 2025-07-28
+  status: MyString
+  reason: MyText
+  approved_by: one
+  approved_date: 2025-07-28
+  rejection_reason: MyText
+
+two:
+  book: two
+  member: two
+  requested_by: two
+  requested_date: 2025-07-28
+  needed_by_date: 2025-07-28
+  status: MyString
+  reason: MyText
+  approved_by: two
+  approved_date: 2025-07-28
+  rejection_reason: MyText

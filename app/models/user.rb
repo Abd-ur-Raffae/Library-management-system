@@ -6,6 +6,10 @@ class User < ApplicationRecord
 
   validates :role, presence: true, inclusion: { in: %w[librarian member] }
 
+  # Add these relationships
+  has_many :book_requests, foreign_key: "requested_by_id", dependent: :destroy
+  has_many :approved_requests, class_name: "BookRequest", foreign_key: "approved_by_id"
+
   before_validation :set_default_role, on: :create
 
   def librarian?
@@ -14,6 +18,11 @@ class User < ApplicationRecord
 
   def member?
     role == "member"
+  end
+
+  # Add this method
+  def pending_requests_count
+    book_requests.pending.count
   end
 
   private

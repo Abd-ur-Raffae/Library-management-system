@@ -14,9 +14,14 @@
           </div>
           <div class="col-md-6">
             <h5>Member Information</h5>
-            <p><strong>Name:</strong> <%= link_to @borrowing.member.name, @borrowing.member, class: "text-decoration-none" %></p>
-            <p><strong>Email:</strong> <%= @borrowing.member.email %></p>
-            <p><strong>Phone:</strong> <%= @borrowing.member.phone %></p>
+            <% if @borrowing.member %>
+              <p><strong>Name:</strong> <%= link_to @borrowing.member.name, @borrowing.member, class: "text-decoration-none" %></p>
+              <p><strong>Email:</strong> <%= @borrowing.member.email %></p>
+              <p><strong>Phone:</strong> <%= @borrowing.member.phone %></p>
+            <% else %>
+              <p><strong>Borrower:</strong> <span class="text-muted">Via Book Request System</span></p>
+              <p><strong>Note:</strong> <span class="text-muted">This borrowing was created through the book request system</span></p>
+            <% end %>
           </div>
         </div>
         

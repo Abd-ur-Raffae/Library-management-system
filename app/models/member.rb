@@ -1,6 +1,7 @@
 class Member < ApplicationRecord
   has_many :borrowings, dependent: :destroy
   has_many :books, through: :borrowings
+  has_many :book_requests, dependent: :destroy  # Add this line
 
   validates :name, presence: true
   validates :email, presence: true, uniqueness: true

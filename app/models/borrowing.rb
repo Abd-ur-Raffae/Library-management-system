@@ -1,6 +1,6 @@
 class Borrowing < ApplicationRecord
   belongs_to :book
-  belongs_to :member
+  belongs_to :member, optional: true  # This should already be there
 
   validates :borrowed_date, presence: true
   validates :due_date, presence: true
